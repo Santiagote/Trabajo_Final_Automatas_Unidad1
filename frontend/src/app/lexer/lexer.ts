@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LexerService, Token } from '../services/lexer';
@@ -15,7 +15,7 @@ export class LexerComponent {
   cargando: boolean = false;
   error: string = '';
 
-  constructor(private lexerService: LexerService) {}
+  constructor(private lexerService: LexerService, private cdr: ChangeDetectorRef) {}
 
   analizar() {
     if (!this.codigo.trim()) {
@@ -24,28 +24,29 @@ export class LexerComponent {
     }
     this.cargando = true;
     this.error = '';
-    this.tokens = [];
 
     this.lexerService.tokenizar(this.codigo).subscribe({
       next: (res) => {
-        this.tokens = res.tokens;
+        this.tokens = [...res.tokens];
         this.cargando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Error al conectar con el servidor';
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   getColor(tipo: string): string {
     const colores: Record<string, string> = {
-      'RESERVADA':     '#569cd6',  // azul
-      'IDENTIFICADOR': '#4ec94e',  // verde
-      'DECIMAL':       '#ce9178',  // naranja
-      'LOGICO':        '#c586c0',  // morado
-      'ARITMETICO':    '#dcdcaa',  // amarillo
-      'INVALIDO':      '#f44747',  // rojo
+      'RESERVADA':     '#569cd6',
+      'IDENTIFICADOR': '#4ec94e',
+      'DECIMAL':       '#ce9178',
+      'LOGICO':        '#c586c0',
+      'ARITMETICO':    '#dcdcaa',
+      'INVALIDO':      '#f44747',
       'ESPACIO':       'transparent'
     };
     return colores[tipo] || 'white';

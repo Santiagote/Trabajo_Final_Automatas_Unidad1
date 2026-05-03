@@ -16,38 +16,42 @@
       placeholder="Escribe o pega tu código aquí..."
       rows="10">
     </textarea>
-    <div class="error" *ngIf="error">{{ error }}</div>
+    @if (error) {
+      <div class="error">{{ error }}</div>
+    }
   </div>
 
-  <div class="resultado-section" *ngIf="tokens.length > 0">
+  @if (tokens.length > 0) {
+  <div class="resultado-section">
 
     <!-- Código coloreado -->
     <div class="codigo-coloreado">
       <div class="section-header">Resultado</div>
       <div class="codigo-output">
-        <span
-          *ngFor="let token of tokens"
-          [style.color]="getColor(token.tipo)"
-          [class.invalido]="!token.valido"
-          [title]="token.tipo">
-          {{ token.lexema }}
-        </span>
+        @for (token of tokens; track token.inicio) {
+          <span
+            [style.color]="getColor(token.tipo)"
+            [class.invalido]="!token.valido"
+            [title]="token.tipo">{{ token.lexema }}</span>
+        }
       </div>
     </div>
 
     <!-- Leyenda -->
     <div class="leyenda">
-      <div class="leyenda-item" *ngFor="let item of [
+      @for (item of [
         {tipo: 'RESERVADA',     color: '#569cd6', label: 'Palabra reservada'},
         {tipo: 'IDENTIFICADOR', color: '#4ec94e', label: 'Identificador'},
         {tipo: 'DECIMAL',       color: '#ce9178', label: 'Número decimal'},
         {tipo: 'LOGICO',        color: '#c586c0', label: 'Operador lógico'},
         {tipo: 'ARITMETICO',    color: '#dcdcaa', label: 'Operador aritmético'},
         {tipo: 'INVALIDO',      color: '#f44747', label: 'Token inválido'}
-      ]">
-        <span class="leyenda-color" [style.background]="item.color"></span>
-        <span>{{ item.label }}</span>
-      </div>
+      ]; track item.tipo) {
+        <div class="leyenda-item">
+          <span class="leyenda-color" [style.background]="item.color"></span>
+          <span>{{ item.label }}</span>
+        </div>
+      }
     </div>
 
     <!-- Tabla de tokens -->
@@ -65,16 +69,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let token of tokens; let i = index"
-              [class.fila-invalida]="!token.valido"
-              [style.display]="token.tipo === 'ESPACIO' ? 'none' : ''">
-            <td>{{ i + 1 }}</td>
-            <td [style.color]="getColor(token.tipo)">{{ token.lexema }}</td>
-            <td>{{ token.tipo }}</td>
-            <td>{{ token.valido ? '✅' : '❌' }}</td>
-            <td>{{ token.inicio }}</td>
-            <td>{{ token.fin }}</td>
-          </tr>
+          @for (token of tokens; track token.inicio; let i = $index) {
+            @if (token.tipo !== 'ESPACIO') {
+              <tr [class.fila-invalida]="!token.valido">
+                <td>{{ i + 1 }}</td>
+                <td [style.color]="getColor(token.tipo)">{{ token.lexema }}</td>
+                <td>{{ token.tipo }}</td>
+                <td>{{ token.valido ? '✅' : '❌' }}</td>
+                <td>{{ token.inicio }}</td>
+                <td>{{ token.fin }}</td>
+              </tr>
+            }
+          }
         </tbody>
       </table>
     </div>
@@ -92,4 +98,5 @@
     </div>
 
   </div>
+  }
 </div>
