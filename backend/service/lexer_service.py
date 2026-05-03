@@ -60,8 +60,21 @@ def tonkenizar(codigo: str) -> list:
                 break
             
         if mejor:
-            tokens.append(mejor)
-            i = mejor['fin']
+            if mejor['tipo'] == 'DECIMAL' and mejor['fin'] < n and (codigo[mejor['fin']].isalpha() or codigo[mejor['fin']] in '_.'):
+                fin_invalido = mejor['fin']
+                while fin_invalido < n and not codigo[fin_invalido].isspace():
+                    fin_invalido += 1
+                tokens.append({
+                    'lexema': codigo[i:fin_invalido],
+                    'tipo': 'INVALIDO',
+                    'valido': False,
+                    'inicio': i,
+                    'fin': fin_invalido
+                })
+                i = fin_invalido
+            else:
+                tokens.append(mejor)
+                i = mejor['fin']
         else:
             tokens.append({
                 'lexema': codigo[i],
