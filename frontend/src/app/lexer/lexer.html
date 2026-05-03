@@ -1,0 +1,95 @@
+<div class="container">
+  <header>
+    <h1>🔍 Analizador Léxico</h1>
+    <p>Ingresa tu código fuente para identificar los tokens</p>
+  </header>
+
+  <div class="editor-section">
+    <div class="editor-header">
+      <span>Código fuente</span>
+      <button class="btn-analizar" (click)="analizar()" [disabled]="cargando">
+        {{ cargando ? 'Analizando...' : 'Analizar' }}
+      </button>
+    </div>
+    <textarea
+      [(ngModel)]="codigo"
+      placeholder="Escribe o pega tu código aquí..."
+      rows="10">
+    </textarea>
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </div>
+
+  <div class="resultado-section" *ngIf="tokens.length > 0">
+
+    <!-- Código coloreado -->
+    <div class="codigo-coloreado">
+      <div class="section-header">Resultado</div>
+      <div class="codigo-output">
+        <span
+          *ngFor="let token of tokens"
+          [style.color]="getColor(token.tipo)"
+          [class.invalido]="!token.valido"
+          [title]="token.tipo">
+          {{ token.lexema }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="leyenda">
+      <div class="leyenda-item" *ngFor="let item of [
+        {tipo: 'RESERVADA',     color: '#569cd6', label: 'Palabra reservada'},
+        {tipo: 'IDENTIFICADOR', color: '#4ec94e', label: 'Identificador'},
+        {tipo: 'DECIMAL',       color: '#ce9178', label: 'Número decimal'},
+        {tipo: 'LOGICO',        color: '#c586c0', label: 'Operador lógico'},
+        {tipo: 'ARITMETICO',    color: '#dcdcaa', label: 'Operador aritmético'},
+        {tipo: 'INVALIDO',      color: '#f44747', label: 'Token inválido'}
+      ]">
+        <span class="leyenda-color" [style.background]="item.color"></span>
+        <span>{{ item.label }}</span>
+      </div>
+    </div>
+
+    <!-- Tabla de tokens -->
+    <div class="tabla-section">
+      <div class="section-header">Tabla de tokens</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Lexema</th>
+            <th>Tipo</th>
+            <th>Válido</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let token of tokens; let i = index"
+              [class.fila-invalida]="!token.valido"
+              [style.display]="token.tipo === 'ESPACIO' ? 'none' : ''">
+            <td>{{ i + 1 }}</td>
+            <td [style.color]="getColor(token.tipo)">{{ token.lexema }}</td>
+            <td>{{ token.tipo }}</td>
+            <td>{{ token.valido ? '✅' : '❌' }}</td>
+            <td>{{ token.inicio }}</td>
+            <td>{{ token.fin }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Resumen -->
+    <div class="resumen">
+      <div class="resumen-card validos">
+        <span class="numero">{{ getTokensValidos().length }}</span>
+        <span>Tokens válidos</span>
+      </div>
+      <div class="resumen-card invalidos">
+        <span class="numero">{{ getTokensInvalidos().length }}</span>
+        <span>Tokens inválidos</span>
+      </div>
+    </div>
+
+  </div>
+</div>
